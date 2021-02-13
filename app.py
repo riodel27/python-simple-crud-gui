@@ -1,8 +1,22 @@
 from dearpygui.core import *
 from dearpygui.simple import *
+import psycopg2
 
 
-# TODO: setup database connection
+connection = psycopg2.connect(user="postgres",
+                              password="postgres",
+                              host="127.0.0.1",
+                              port="5432",
+                              database="windels")
+
+# Create a cursor to perform database operations
+cursor = connection.cursor()
+
+# Fetch result
+cursor.execute("SELECT * from employees")
+record = cursor.fetchall()
+print("Result ", record)
+
 
 def save_callback(sender, data):
     print("Save Clicked")
@@ -17,7 +31,15 @@ def save_callback(sender, data):
     print('designation:', input_value_designation)
     print('salary:', input_value_salary)
 
-    # TODO: save to database
+    mySql_insert_query = """INSERT INTO employees (name, branch, designation, salary) 
+                                VALUES (%s, %s, %s, %s) """
+
+    recordTuple = (input_value_employee_name, input_value_branch_name,
+                   input_value_designation, input_value_salary)
+
+    cursor.execute(mySql_insert_query, recordTuple)
+    connection.commit()
+    print("1 Record inserted successfully")
 
 
 with window("CRUD", width=850, height=500):
